@@ -1,0 +1,175 @@
+import React, { useEffect, useState } from 'react';
+import { View, Text, FlatList, TouchableOpacity, Image, StyleSheet, ActivityIndicator } from 'react-native';
+import { useRouter } from 'expo-router';
+import { useSelector } from 'react-redux';
+import { RootState } from '../../src/store';
+import { exercisesApi } from '../../src/services/api';
+import { Feather } from '@expo/vector-icons';
+
+export default function HomeScreen() {
+  const router = useRouter();
+  const user = useSelector((state: RootState) => state.auth.user);
+  const [exercises, setExercises] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    loadExercises();
+  }, []);
+
+  const loadExercises = async () => {
+    try {
+      const data = await exercisesApi.getExercises();
+      setExercises(data);
+    } catch (error) {
+      console.error('Error loading exercises:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const renderExerciseCard = ({ item }: any) => (
+    <TouchableOpacity
+      style={styles.card}
+      onPress={() => router.push(`/details/${item.id}`)}
+    >
+      <Image source={{ uri: item.gifUrl }} style={styles.cardImage} />
+      <View style={styles.cardContent}>
+        <Text style={styles.cardTitle} numberOfLines={1}>{item.name}</Text>
+        <View style={styles.cardMeta}>
+          <View style={styles.metaItem}>
+            <Feather name="target" size={14} color="#4CAF50" />
+            <Text style={styles.metaText}>{item.target}</Text>
+          </View>
+          <View style={styles.metaItem}>
+            <Feather name="package" size={14} color="#FF9800" />
+            <Text style={styles.metaText}>{item.equipment}</Text>
+          </View>
+        </View>
+        <View style={styles.statusBadge}>
+          <Text style={styles.statusText}>Popular</Text>
+        </View>
+      </View>
+    </TouchableOpacity>
+  );
+
+  if (loading) {
+    return (
+      <View style={styles.centerContainer}>
+        <ActivityIndicator size="large" color="#4CAF50" />
+        <Text style={styles.loadingText}>Loading exercises...</Text>
+      </View>
+    );
+  }
+
+  return (
+    <View style={styles.container}>
+      <View style={styles.header}>
+        <View>
+          <Text style={styles.greeting}>Hello, {user?.firstName || 'User'}! 👋</Text>
+          <Text style={styles.subtitle}>Ready to workout today?</Text>
+        </View>
+        <Feather name="bell" size={24} color="#212121" />
+      </View>
+
+      <FlatList
+        data={exercises}
+        renderItem={renderExerciseCard}
+        keyExtractor={(item) => item.id}
+        contentContainerStyle={styles.listContent}
+        showsVerticalScrollIndicator={false}
+      />
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#F5F5F5',
+  },
+  centerContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#F5F5F5',
+  },
+  loadingText: {
+    marginTop: 10,
+    color: '#757575',
+    fontSize: 16,
+  },
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: 16,
+    backgroundColor: '#FFFFFF',
+    borderBottomWidth: 1,
+    borderBottomColor: '#E0E0E0',
+  },
+  greeting: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#212121',
+  },
+  subtitle: {
+    fontSize: 14,
+    color: '#757575',
+    marginTop: 4,
+  },
+  listContent: {
+    padding: 16,
+  },
+  card: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 12,
+    marginBottom: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+    overflow: 'hidden',
+  },
+  cardImage: {
+    width: '100%',
+    height: 180,
+    backgroundColor: '#E0E0E0',
+  },
+  cardContent: {
+    padding: 12,
+  },
+  cardTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#212121',
+    marginBottom: 8,
+  },
+  cardMeta: {
+    flexDirection: 'row',
+    gap: 12,
+    marginBottom: 8,
+  },
+  metaItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+  },
+  metaText: {
+    fontSize: 12,
+    color: '#757575',
+    textTransform: 'capitalize',
+  },
+  statusBadge: {
+    alignSelf: 'flex-start',
+    backgroundColor: '#E8F5E9',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 4,
+  },
+  statusText: {
+    fontSize: 12,
+    color: '#2E7D32',
+    fontWeight: '600',
+  },
+});
