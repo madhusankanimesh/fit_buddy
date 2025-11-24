@@ -24,7 +24,7 @@ export default function LoginScreen() {
       await loginSchema.validate({ username, password }, { abortEarly: false });
       
       setLoading(true);
-      // Call API (use username: 'emilys', password: 'emilyspass' for testing)
+      // Call API
       const response = await authApi.login({ username, password });
       
       // Save to secure storage
@@ -47,7 +47,7 @@ export default function LoginScreen() {
         console.error('Login error:', error);
         Alert.alert(
           'Login Failed', 
-          error.response?.data?.message || error.message || 'Invalid credentials. Try: emilys / emilyspass'
+          error.response?.data?.message || 'Invalid credentials. Please check your username and password.'
         );
       }
     } finally {
@@ -55,28 +55,11 @@ export default function LoginScreen() {
     }
   };
 
-  const handleSkipLogin = async () => {
-    // Mock user for testing
-    const mockUser = {
-      id: 1,
-      username: 'demo_user',
-      email: 'demo@fitbuddy.com',
-      firstName: 'Demo',
-      lastName: 'User',
-    };
-    const mockToken = 'demo_token_123';
-    
-    await storage.saveToken(mockToken);
-    await storage.saveUser(mockUser);
-    dispatch(setCredentials({ user: mockUser, token: mockToken }));
-    router.replace('/(tabs)');
-  };
-
   return (
     <View style={styles.container}>
       <View style={styles.header}>
         <Feather name="activity" size={60} color="#4FC3F7" />
-        <Text style={styles.title}>FitBuddy</Text>
+        <Text style={styles.title}>GymMate</Text>
         <Text style={styles.subtitle}>Your Fitness Companion</Text>
       </View>
 
@@ -116,20 +99,9 @@ export default function LoginScreen() {
           <Text style={styles.buttonText}>{loading ? 'Logging in...' : 'Login'}</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity 
-          style={styles.skipButton} 
-          onPress={handleSkipLogin}
-        >
-          <Text style={styles.skipButtonText}>Skip Login (Demo Mode)</Text>
-        </TouchableOpacity>
-
         <TouchableOpacity onPress={() => router.push('/register')}>
           <Text style={styles.linkText}>Don't have an account? Register</Text>
         </TouchableOpacity>
-
-        <View style={styles.demoHint}>
-          <Text style={styles.demoText}>Demo: username: emilys | password: emilyspass</Text>
-        </View>
       </View>
     </View>
   );
@@ -206,33 +178,10 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
   },
-  skipButton: {
-    backgroundColor: '#FF9800',
-    padding: 15,
-    borderRadius: 8,
-    alignItems: 'center',
-    marginTop: 10,
-  },
-  skipButtonText: {
-    color: '#FFFFFF',
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
   linkText: {
     color: '#4FC3F7',
     textAlign: 'center',
     marginTop: 15,
     fontSize: 14,
-  },
-  demoHint: {
-    marginTop: 20,
-    padding: 10,
-    backgroundColor: '#E8F5E9',
-    borderRadius: 6,
-  },
-  demoText: {
-    color: '#2E7D32',
-    fontSize: 12,
-    textAlign: 'center',
   },
 });
