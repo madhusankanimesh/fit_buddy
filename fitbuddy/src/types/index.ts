@@ -13,6 +13,10 @@ export interface Exercise {
   target: string;
   bodyPart: string;
   equipment: string;
+  difficulty?: string;
+  instructions?: string;
+  description?: string;
+  rating?: number;
 }
 
 export interface LoginCredentials {

@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, Image, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { Image } from 'expo-image';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '../../src/store';
@@ -72,7 +73,11 @@ export default function ExerciseDetailsScreen() {
 
   return (
     <ScrollView style={[styles.container, { backgroundColor: colors.background }]}>
-      <Image source={{ uri: exercise.gifUrl }} style={styles.image} />
+      <Image 
+        source={{ uri: exercise.gifUrl }} 
+        style={styles.image}
+        contentFit="contain"
+      />
       
       <View style={styles.content}>
         <View style={styles.headerSection}>
@@ -136,7 +141,10 @@ export default function ExerciseDetailsScreen() {
           </View>
         </View>
 
-        <TouchableOpacity style={styles.startButton}>
+        <TouchableOpacity 
+          style={styles.startButton}
+          onPress={() => router.push(`/workout/${exercise.id}`)}
+        >
           <Feather name="play-circle" size={24} color="#FFFFFF" />
           <Text style={styles.startButtonText}>Start Workout</Text>
         </TouchableOpacity>

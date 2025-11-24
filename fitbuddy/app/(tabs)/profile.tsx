@@ -74,7 +74,10 @@ export default function ProfileScreen() {
       </View>
 
       <View style={[styles.menuContainer, { backgroundColor: colors.card }]}>
-        <TouchableOpacity style={[styles.menuItem, { borderBottomColor: colors.border }]}>
+        <TouchableOpacity 
+          style={[styles.menuItem, { borderBottomColor: colors.border }]}
+          onPress={() => router.push('/settings')}
+        >
           <Feather name="settings" size={20} color={colors.text} />
           <Text style={[styles.menuText, { color: colors.text }]}>Settings</Text>
           <Feather name="chevron-right" size={20} color={colors.textSecondary} />
@@ -93,13 +96,19 @@ export default function ProfileScreen() {
           </View>
         </TouchableOpacity>
         
-        <TouchableOpacity style={[styles.menuItem, { borderBottomColor: colors.border }]}>
+        <TouchableOpacity 
+          style={[styles.menuItem, { borderBottomColor: colors.border }]}
+          onPress={() => router.push('/settings')}
+        >
           <Feather name="help-circle" size={20} color={colors.text} />
           <Text style={[styles.menuText, { color: colors.text }]}>Help & Support</Text>
           <Feather name="chevron-right" size={20} color={colors.textSecondary} />
         </TouchableOpacity>
         
-        <TouchableOpacity style={[styles.menuItem, { borderBottomColor: colors.border }]}>
+        <TouchableOpacity 
+          style={[styles.menuItem, { borderBottomColor: colors.border }]}
+          onPress={() => router.push('/settings')}
+        >
           <Feather name="info" size={20} color={colors.text} />
           <Text style={[styles.menuText, { color: colors.text }]}>About</Text>
           <Feather name="chevron-right" size={20} color={colors.textSecondary} />

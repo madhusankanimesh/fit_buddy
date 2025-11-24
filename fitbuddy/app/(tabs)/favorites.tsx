@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
-import { View, Text, FlatList, TouchableOpacity, Image, StyleSheet } from 'react-native';
+import { View, Text, FlatList, TouchableOpacity, StyleSheet } from 'react-native';
+import { Image } from 'expo-image';
 import { useRouter } from 'expo-router';
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '../../src/store';
@@ -34,7 +35,12 @@ export default function FavoritesScreen() {
       style={[styles.card, { backgroundColor: colors.card }]}
       onPress={() => router.push(`/details/${item.id}`)}
     >
-      <Image source={{ uri: item.gifUrl }} style={styles.cardImage} />
+      <Image 
+        source={{ uri: item.gifUrl }} 
+        style={styles.cardImage}
+        contentFit="cover"
+        transition={200}
+      />
       <View style={styles.cardContent}>
         <Text style={[styles.cardTitle, { color: colors.text }]} numberOfLines={1}>{item.name}</Text>
         <View style={styles.cardMeta}>
