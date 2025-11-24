@@ -58,8 +58,8 @@ export default function LoginScreen() {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Feather name="activity" size={60} color="#4FC3F7" />
-        <Text style={styles.title}>GymMate</Text>
+        <Feather name="activity" size={60} color="#6B7280" />
+        <Text style={styles.title}>GymBuddy</Text>
         <Text style={styles.subtitle}>Your Fitness Companion</Text>
       </View>
 
@@ -110,7 +110,7 @@ export default function LoginScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F5F5F5',
+    backgroundColor: '#F9FAFB',
     justifyContent: 'center',
     padding: 20,
   },
@@ -121,12 +121,12 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 32,
     fontWeight: 'bold',
-    color: '#212121',
+    color: '#1F2937',
     marginTop: 10,
   },
   subtitle: {
     fontSize: 16,
-    color: '#757575',
+    color: '#6B7280',
     marginTop: 5,
   },
   form: {
@@ -143,11 +143,11 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: '#E0E0E0',
+    borderColor: '#E5E7EB',
     borderRadius: 8,
     paddingHorizontal: 12,
     marginBottom: 8,
-    backgroundColor: '#F9F9F9',
+    backgroundColor: '#F9FAFB',
   },
   icon: {
     marginRight: 10,
@@ -156,22 +156,23 @@ const styles = StyleSheet.create({
     flex: 1,
     height: 50,
     fontSize: 16,
+    color: '#1F2937',
   },
   errorText: {
-    color: '#F44336',
+    color: '#EF4444',
     fontSize: 12,
     marginBottom: 8,
     marginLeft: 4,
   },
   button: {
-    backgroundColor: '#4FC3F7',
+    backgroundColor: '#6B7280',
     padding: 15,
     borderRadius: 8,
     alignItems: 'center',
     marginTop: 10,
   },
   buttonDisabled: {
-    backgroundColor: '#81D4FA',
+    backgroundColor: '#9CA3AF',
   },
   buttonText: {
     color: '#FFFFFF',
@@ -179,7 +180,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   linkText: {
-    color: '#4FC3F7',
+    color: '#6B7280',
     textAlign: 'center',
     marginTop: 15,
     fontSize: 14,

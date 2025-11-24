@@ -270,7 +270,7 @@ export default function SettingsScreen() {
 
       <View style={styles.footer}>
         <Text style={[styles.footerText, { color: colors.textSecondary }]}>
-          GymMate - Your Fitness Companion
+          GymBuddy - Your Fitness Companion
         </Text>
         <Text style={[styles.footerText, { color: colors.textSecondary }]}>
           © 2025 All rights reserved

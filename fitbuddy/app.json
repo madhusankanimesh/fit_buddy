@@ -1,11 +1,11 @@
 {
   "expo": {
-    "name": "gymmate",
-    "slug": "gymmate",
+    "name": "GymBuddy",
+    "slug": "gymbuddy",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "gymmate",
+    "scheme": "gymbuddy",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
