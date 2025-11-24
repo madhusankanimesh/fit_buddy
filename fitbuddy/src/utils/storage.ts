@@ -4,6 +4,7 @@ import * as SecureStore from 'expo-secure-store';
 const TOKEN_KEY = 'auth_token';
 const USER_KEY = 'user_data';
 const FAVORITES_KEY = 'favorites';
+const THEME_KEY = 'dark_mode';
 
 export const storage = {
   // Secure storage for sensitive data (token) - must be string only
@@ -59,5 +60,15 @@ export const storage = {
   getFavorites: async () => {
     const favorites = await AsyncStorage.getItem(FAVORITES_KEY);
     return favorites ? JSON.parse(favorites) : [];
+  },
+  
+  // Theme persistence
+  saveDarkMode: async (isDarkMode: boolean) => {
+    await AsyncStorage.setItem(THEME_KEY, JSON.stringify(isDarkMode));
+  },
+  
+  getDarkMode: async () => {
+    const darkMode = await AsyncStorage.getItem(THEME_KEY);
+    return darkMode ? JSON.parse(darkMode) : false;
   },
 };

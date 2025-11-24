@@ -1,12 +1,27 @@
 import { Stack } from 'expo-router';
 import { Provider } from 'react-redux';
 import { store } from '../src/store';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { storage } from '../src/utils/storage';
 import { useDispatch } from 'react-redux';
-import { setCredentials } from '../src/store/authSlice';
+import { setTheme } from '../src/store/themeSlice';
 
 function RootLayoutContent() {
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    loadThemePreference();
+  }, []);
+
+  const loadThemePreference = async () => {
+    try {
+      const savedDarkMode = await storage.getDarkMode();
+      dispatch(setTheme(savedDarkMode));
+    } catch (error) {
+      console.error('Error loading theme preference:', error);
+    }
+  };
+
   return (
     <Stack screenOptions={{ headerShown: false }}>
       <Stack.Screen name="index" />

@@ -1,7 +1,7 @@
 export const Colors = {
   light: {
-    primary: '#4CAF50',
-    secondary: '#8BC34A',
+    primary: '#4FC3F7',
+    secondary: '#81D4FA',
     background: '#F5F5F5',
     card: '#FFFFFF',
     text: '#212121',
@@ -10,10 +10,11 @@ export const Colors = {
     error: '#F44336',
     success: '#4CAF50',
     warning: '#FF9800',
+    heart: '#F44336',
   },
   dark: {
-    primary: '#66BB6A',
-    secondary: '#9CCC65',
+    primary: '#4FC3F7',
+    secondary: '#81D4FA',
     background: '#121212',
     card: '#1E1E1E',
     text: '#FFFFFF',
@@ -22,6 +23,7 @@ export const Colors = {
     error: '#EF5350',
     success: '#66BB6A',
     warning: '#FFA726',
+    heart: '#EF5350',
   },
 };
 

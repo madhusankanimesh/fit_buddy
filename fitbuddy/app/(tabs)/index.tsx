@@ -5,10 +5,12 @@ import { useSelector } from 'react-redux';
 import { RootState } from '../../src/store';
 import { exercisesApi } from '../../src/services/api';
 import { Feather } from '@expo/vector-icons';
+import { useTheme } from '../../src/utils/useTheme';
 
 export default function HomeScreen() {
   const router = useRouter();
   const user = useSelector((state: RootState) => state.auth.user);
+  const { colors } = useTheme();
   const [exercises, setExercises] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -29,20 +31,20 @@ export default function HomeScreen() {
 
   const renderExerciseCard = ({ item }: any) => (
     <TouchableOpacity
-      style={styles.card}
+      style={[styles.card, { backgroundColor: colors.card }]}
       onPress={() => router.push(`/details/${item.id}`)}
     >
       <Image source={{ uri: item.gifUrl }} style={styles.cardImage} />
       <View style={styles.cardContent}>
-        <Text style={styles.cardTitle} numberOfLines={1}>{item.name}</Text>
+        <Text style={[styles.cardTitle, { color: colors.text }]} numberOfLines={1}>{item.name}</Text>
         <View style={styles.cardMeta}>
           <View style={styles.metaItem}>
-            <Feather name="target" size={14} color="#4CAF50" />
-            <Text style={styles.metaText}>{item.target}</Text>
+            <Feather name="target" size={14} color="#4FC3F7" />
+            <Text style={[styles.metaText, { color: colors.textSecondary }]}>{item.target}</Text>
           </View>
           <View style={styles.metaItem}>
             <Feather name="package" size={14} color="#FF9800" />
-            <Text style={styles.metaText}>{item.equipment}</Text>
+            <Text style={[styles.metaText, { color: colors.textSecondary }]}>{item.equipment}</Text>
           </View>
         </View>
         <View style={styles.statusBadge}>
@@ -54,21 +56,21 @@ export default function HomeScreen() {
 
   if (loading) {
     return (
-      <View style={styles.centerContainer}>
-        <ActivityIndicator size="large" color="#4CAF50" />
-        <Text style={styles.loadingText}>Loading exercises...</Text>
+      <View style={[styles.centerContainer, { backgroundColor: colors.background }]}>
+        <ActivityIndicator size="large" color="#4FC3F7" />
+        <Text style={[styles.loadingText, { color: colors.textSecondary }]}>Loading exercises...</Text>
       </View>
     );
   }
 
   return (
-    <View style={styles.container}>
-      <View style={styles.header}>
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
+      <View style={[styles.header, { backgroundColor: colors.card, borderBottomColor: colors.border }]}>
         <View>
-          <Text style={styles.greeting}>Hello, {user?.firstName || 'User'}! 👋</Text>
-          <Text style={styles.subtitle}>Ready to workout today?</Text>
+          <Text style={[styles.greeting, { color: colors.text }]}>Hello, {user?.firstName || 'User'}! 👋</Text>
+          <Text style={[styles.subtitle, { color: colors.textSecondary }]}>Ready to workout today?</Text>
         </View>
-        <Feather name="bell" size={24} color="#212121" />
+        <Feather name="bell" size={24} color={colors.text} />
       </View>
 
       <FlatList

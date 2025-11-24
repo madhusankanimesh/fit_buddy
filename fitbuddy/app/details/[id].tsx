@@ -7,11 +7,13 @@ import { addFavorite, removeFavorite } from '../../src/store/favoritesSlice';
 import { exercisesApi } from '../../src/services/api';
 import { storage } from '../../src/utils/storage';
 import { Feather } from '@expo/vector-icons';
+import { useTheme } from '../../src/utils/useTheme';
 
 export default function ExerciseDetailsScreen() {
   const { id } = useLocalSearchParams();
   const router = useRouter();
   const dispatch = useDispatch();
+  const { colors } = useTheme();
   const favorites = useSelector((state: RootState) => state.favorites.items);
   const [exercise, setExercise] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -54,7 +56,7 @@ export default function ExerciseDetailsScreen() {
 
   if (loading) {
     return (
-      <View style={styles.centerContainer}>
+      <View style={[styles.centerContainer, { backgroundColor: colors.background }]}>
         <ActivityIndicator size="large" color="#4CAF50" />
       </View>
     );
@@ -62,75 +64,75 @@ export default function ExerciseDetailsScreen() {
 
   if (!exercise) {
     return (
-      <View style={styles.centerContainer}>
-        <Text style={styles.errorText}>Exercise not found</Text>
+      <View style={[styles.centerContainer, { backgroundColor: colors.background }]}>
+        <Text style={[styles.errorText, { color: colors.textSecondary }]}>Exercise not found</Text>
       </View>
     );
   }
 
   return (
-    <ScrollView style={styles.container}>
+    <ScrollView style={[styles.container, { backgroundColor: colors.background }]}>
       <Image source={{ uri: exercise.gifUrl }} style={styles.image} />
       
       <View style={styles.content}>
         <View style={styles.headerSection}>
-          <Text style={styles.title}>{exercise.name}</Text>
+          <Text style={[styles.title, { color: colors.text }]}>{exercise.name}</Text>
           <TouchableOpacity onPress={handleToggleFavorite} style={styles.favoriteButton}>
             <Feather 
               name="heart" 
               size={28} 
-              color={isFavorite ? "#F44336" : "#757575"}
+              color={isFavorite ? "#F44336" : colors.textSecondary}
             />
           </TouchableOpacity>
         </View>
 
         <View style={styles.infoCards}>
-          <View style={styles.infoCard}>
+          <View style={[styles.infoCard, { backgroundColor: colors.card }]}>
             <Feather name="target" size={24} color="#4CAF50" />
-            <Text style={styles.infoLabel}>Target</Text>
-            <Text style={styles.infoValue}>{exercise.target}</Text>
+            <Text style={[styles.infoLabel, { color: colors.textSecondary }]}>Target</Text>
+            <Text style={[styles.infoValue, { color: colors.text }]}>{exercise.target}</Text>
           </View>
           
-          <View style={styles.infoCard}>
+          <View style={[styles.infoCard, { backgroundColor: colors.card }]}>
             <Feather name="package" size={24} color="#FF9800" />
-            <Text style={styles.infoLabel}>Equipment</Text>
-            <Text style={styles.infoValue}>{exercise.equipment}</Text>
+            <Text style={[styles.infoLabel, { color: colors.textSecondary }]}>Equipment</Text>
+            <Text style={[styles.infoValue, { color: colors.text }]}>{exercise.equipment}</Text>
           </View>
           
-          <View style={styles.infoCard}>
+          <View style={[styles.infoCard, { backgroundColor: colors.card }]}>
             <Feather name="activity" size={24} color="#2196F3" />
-            <Text style={styles.infoLabel}>Body Part</Text>
-            <Text style={styles.infoValue}>{exercise.bodyPart}</Text>
+            <Text style={[styles.infoLabel, { color: colors.textSecondary }]}>Body Part</Text>
+            <Text style={[styles.infoValue, { color: colors.text }]}>{exercise.bodyPart}</Text>
           </View>
         </View>
 
         {exercise.rating && (
-          <View style={styles.ratingSection}>
+          <View style={[styles.ratingSection, { backgroundColor: colors.card }]}>
             <Feather name="star" size={20} color="#FFC107" />
-            <Text style={styles.ratingText}>{exercise.rating} / 5</Text>
+            <Text style={[styles.ratingText, { color: colors.text }]}>{exercise.rating} / 5</Text>
           </View>
         )}
 
-        <View style={styles.descriptionSection}>
-          <Text style={styles.sectionTitle}>Description</Text>
-          <Text style={styles.descriptionText}>
+        <View style={[styles.descriptionSection, { backgroundColor: colors.card }]}>
+          <Text style={[styles.sectionTitle, { color: colors.text }]}>Description</Text>
+          <Text style={[styles.descriptionText, { color: colors.textSecondary }]}>
             {exercise.description || 'This is a great exercise to improve your fitness and target specific muscle groups.'}
           </Text>
         </View>
 
-        <View style={styles.tipsSection}>
-          <Text style={styles.sectionTitle}>Tips</Text>
+        <View style={[styles.tipsSection, { backgroundColor: colors.card }]}>
+          <Text style={[styles.sectionTitle, { color: colors.text }]}>Tips</Text>
           <View style={styles.tipItem}>
             <Feather name="check-circle" size={16} color="#4CAF50" />
-            <Text style={styles.tipText}>Maintain proper form throughout the exercise</Text>
+            <Text style={[styles.tipText, { color: colors.text }]}>Maintain proper form throughout the exercise</Text>
           </View>
           <View style={styles.tipItem}>
             <Feather name="check-circle" size={16} color="#4CAF50" />
-            <Text style={styles.tipText}>Start with lighter weights and gradually increase</Text>
+            <Text style={[styles.tipText, { color: colors.text }]}>Start with lighter weights and gradually increase</Text>
           </View>
           <View style={styles.tipItem}>
             <Feather name="check-circle" size={16} color="#4CAF50" />
-            <Text style={styles.tipText}>Breathe properly during each repetition</Text>
+            <Text style={[styles.tipText, { color: colors.text }]}>Breathe properly during each repetition</Text>
           </View>
         </View>
 
@@ -263,7 +265,7 @@ const styles = StyleSheet.create({
   },
   startButton: {
     flexDirection: 'row',
-    backgroundColor: '#4CAF50',
+    backgroundColor: '#4FC3F7',
     padding: 16,
     borderRadius: 12,
     alignItems: 'center',

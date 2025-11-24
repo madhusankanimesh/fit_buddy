@@ -6,10 +6,12 @@ import { RootState } from '../../src/store';
 import { removeFavorite, setFavorites } from '../../src/store/favoritesSlice';
 import { storage } from '../../src/utils/storage';
 import { Feather } from '@expo/vector-icons';
+import { useTheme } from '../../src/utils/useTheme';
 
 export default function FavoritesScreen() {
   const router = useRouter();
   const dispatch = useDispatch();
+  const { colors } = useTheme();
   const favorites = useSelector((state: RootState) => state.favorites.items);
 
   useEffect(() => {
@@ -21,9 +23,7 @@ export default function FavoritesScreen() {
     dispatch(setFavorites(savedFavorites));
   };
 
-  const handleRemoveFavorite = async (id: 
-  
-  string) => {
+  const handleRemoveFavorite = async (id: string) => {
     dispatch(removeFavorite(id));
     const updatedFavorites = favorites.filter(item => item.id !== id);
     await storage.saveFavorites(updatedFavorites);
@@ -31,20 +31,20 @@ export default function FavoritesScreen() {
 
   const renderFavoriteCard = ({ item }: any) => (
     <TouchableOpacity
-      style={styles.card}
+      style={[styles.card, { backgroundColor: colors.card }]}
       onPress={() => router.push(`/details/${item.id}`)}
     >
       <Image source={{ uri: item.gifUrl }} style={styles.cardImage} />
       <View style={styles.cardContent}>
-        <Text style={styles.cardTitle} numberOfLines={1}>{item.name}</Text>
+        <Text style={[styles.cardTitle, { color: colors.text }]} numberOfLines={1}>{item.name}</Text>
         <View style={styles.cardMeta}>
           <View style={styles.metaItem}>
-            <Feather name="target" size={14} color="#4CAF50" />
-            <Text style={styles.metaText}>{item.target}</Text>
+            <Feather name="target" size={14} color="#4FC3F7" />
+            <Text style={[styles.metaText, { color: colors.textSecondary }]}>{item.target}</Text>
           </View>
           <View style={styles.metaItem}>
             <Feather name="package" size={14} color="#FF9800" />
-            <Text style={styles.metaText}>{item.equipment}</Text>
+            <Text style={[styles.metaText, { color: colors.textSecondary }]}>{item.equipment}</Text>
           </View>
         </View>
       </View>
@@ -59,10 +59,10 @@ export default function FavoritesScreen() {
 
   if (favorites.length === 0) {
     return (
-      <View style={styles.emptyContainer}>
-        <Feather name="heart" size={80} color="#E0E0E0" />
-        <Text style={styles.emptyTitle}>No Favorites Yet</Text>
-        <Text style={styles.emptySubtitle}>
+      <View style={[styles.emptyContainer, { backgroundColor: colors.background }]}>
+        <Feather name="heart" size={80} color={colors.border} />
+        <Text style={[styles.emptyTitle, { color: colors.text }]}>No Favorites Yet</Text>
+        <Text style={[styles.emptySubtitle, { color: colors.textSecondary }]}>
           Start adding exercises to your favorites!
         </Text>
       </View>
@@ -70,7 +70,7 @@ export default function FavoritesScreen() {
   }
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
       <FlatList
         data={favorites}
         renderItem={renderFavoriteCard}

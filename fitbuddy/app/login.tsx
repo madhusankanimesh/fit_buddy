@@ -75,7 +75,7 @@ export default function LoginScreen() {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Feather name="activity" size={60} color="#4CAF50" />
+        <Feather name="activity" size={60} color="#4FC3F7" />
         <Text style={styles.title}>FitBuddy</Text>
         <Text style={styles.subtitle}>Your Fitness Companion</Text>
       </View>
@@ -192,14 +192,14 @@ const styles = StyleSheet.create({
     marginLeft: 4,
   },
   button: {
-    backgroundColor: '#4CAF50',
+    backgroundColor: '#4FC3F7',
     padding: 15,
     borderRadius: 8,
     alignItems: 'center',
     marginTop: 10,
   },
   buttonDisabled: {
-    backgroundColor: '#A5D6A7',
+    backgroundColor: '#81D4FA',
   },
   buttonText: {
     color: '#FFFFFF',
@@ -219,7 +219,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   linkText: {
-    color: '#4CAF50',
+    color: '#4FC3F7',
     textAlign: 'center',
     marginTop: 15,
     fontSize: 14,
