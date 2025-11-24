@@ -29,6 +29,8 @@ function RootLayoutContent() {
       <Stack.Screen name="register" />
       <Stack.Screen name="(tabs)" />
       <Stack.Screen name="details/[id]" options={{ headerShown: true, title: 'Exercise Details' }} />
+      <Stack.Screen name="workout/[id]" options={{ headerShown: false }} />
+      <Stack.Screen name="settings/index" options={{ headerShown: false }} />
     </Stack>
   );
 }
