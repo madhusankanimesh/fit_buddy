@@ -2,11 +2,8 @@ import axios from 'axios';
 import { LoginCredentials, RegisterData } from '../types';
 
 const AUTH_API = 'https://dummyjson.com';
-const EXERCISEDB_API = 'https://exercisedb.p.rapidapi.com';
-
-// Get your free API key from: https://rapidapi.com/justin-WFnsXH_t6/api/exercisedb
-// Sign up for free and get your API key, then replace below
-const RAPIDAPI_KEY = 'ccce3c2862msh09077d0f1f0604fp1cccacjsnc3386046af8f'; // Replace with your RapidAPI key
+const API_NINJAS_URL = 'https://api.api-ninjas.com/v1/exercises';
+const API_NINJAS_KEY = 'YOUR_API_KEY_HERE'; // Get free key from https://api-ninjas.com
 
 // Authentication API
 export const authApi = {
@@ -21,46 +18,60 @@ export const authApi = {
   },
 };
 
-// ExerciseDB API configuration
-const exerciseDbConfig = {
+// API Ninjas configuration
+const apiNinjasConfig = {
   headers: {
-    'X-RapidAPI-Key': RAPIDAPI_KEY,
-    'X-RapidAPI-Host': 'exercisedb.p.rapidapi.com'
+    'X-Api-Key': API_NINJAS_KEY
   }
 };
 
-// Map ExerciseDB data to our app format
-const mapExerciseDbData = (exercise: any) => ({
-  id: exercise.id,
+// Generate a consistent image URL based on exercise name
+const generateImageUrl = (name: string, type: string) => {
+  // Use a hash of the name to generate consistent but varied images
+  const hash = name.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+  const imageId = 1000 + (hash % 500); // Generate IDs between 1000-1500
+  return `https://picsum.photos/seed/${name.toLowerCase().replace(/\s+/g, '-')}/400/400`;
+};
+
+// Map API Ninjas data to our app format
+const mapApiNinjasData = (exercise: any, index: number) => ({
+  id: `ex_${index}_${exercise.name.replace(/\s+/g, '_').toLowerCase()}`,
   name: exercise.name,
-  gifUrl: exercise.gifUrl,
-  target: exercise.target || 'general',
-  bodyPart: exercise.bodyPart || 'full body',
-  equipment: exercise.equipment || 'body weight',
-  description: `A great exercise targeting ${exercise.target}. This exercise works your ${exercise.bodyPart} using ${exercise.equipment}.`,
-  difficulty: 'intermediate',
-  instructions: exercise.instructions ? exercise.instructions.join(' ') : 'Follow proper form and technique.',
-  rating: Math.random() * (5 - 4) + 4,
+  gifUrl: generateImageUrl(exercise.name, exercise.type),
+  target: exercise.muscle,
+  bodyPart: exercise.type,
+  equipment: exercise.equipment,
+  description: `${exercise.name} is a ${exercise.difficulty} level exercise that targets your ${exercise.muscle}. This exercise is great for building strength and improving your fitness.`,
+  difficulty: exercise.difficulty,
+  instructions: exercise.instructions,
+  rating: exercise.difficulty === 'beginner' ? 4.2 : exercise.difficulty === 'intermediate' ? 4.5 : 4.8,
 });
 
 // Fitness exercises API
 export const exercisesApi = {
-  getExercises: async (bodyPart?: string, limit: number = 20) => {
+  getExercises: async (muscle?: string, limit: number = 20) => {
     try {
-      // If no API key is set, return demo data
-      if (RAPIDAPI_KEY === 'ccce3c2862msh09077d0f1f0604fp1cccacjsnc3386046af8f') {
-        console.warn('ExerciseDB API key not set. Using demo data with real exercise GIFs.');
+      // Check if API key is set
+      if (!API_NINJAS_KEY || API_NINJAS_KEY === 'YOUR_API_KEY_HERE') {
+        console.warn('API Ninjas key not set. Using demo data.');
         return getDemoExercises();
       }
 
-      const endpoint = bodyPart 
-        ? `${EXERCISEDB_API}/exercises/bodyPart/${bodyPart}?limit=${limit}`
-        : `${EXERCISEDB_API}/exercises?limit=${limit}`;
+      const params: any = { offset: 0 };
+      if (muscle) {
+        params.muscle = muscle;
+      }
 
-      const response = await axios.get(endpoint, exerciseDbConfig);
-      return response.data.map(mapExerciseDbData);
+      const response = await axios.get(API_NINJAS_URL, {
+        ...apiNinjasConfig,
+        params
+      });
+
+      // API Ninjas returns array of exercises
+      const exercises = response.data.slice(0, limit);
+      return exercises.map((ex: any, idx: number) => mapApiNinjasData(ex, idx));
     } catch (error) {
-      console.error('Error fetching exercises from ExerciseDB:', error);
+      console.error('Error fetching exercises from API Ninjas:', error);
       return getDemoExercises();
     }
   },
@@ -87,19 +98,21 @@ export const exercisesApi = {
 
   searchExercises: async (query: string) => {
     try {
-      if (RAPIDAPI_KEY === 'ccce3c2862msh09077d0f1f0604fp1cccacjsnc3386046af8f') {
-        const exercises = await getDemoExercises();
+      if (!API_NINJAS_KEY || API_NINJAS_KEY === 'YOUR_API_KEY_HERE') {
+        const exercises = getDemoExercises();
         return exercises.filter((ex: any) => 
           ex.name.toLowerCase().includes(query.toLowerCase()) ||
           ex.target.toLowerCase().includes(query.toLowerCase())
         );
       }
 
-      const response = await axios.get(
-        `${EXERCISEDB_API}/exercises/name/${query}`,
-        exerciseDbConfig
-      );
-      return response.data.map(mapExerciseDbData);
+      // API Ninjas supports name search
+      const response = await axios.get(API_NINJAS_URL, {
+        ...apiNinjasConfig,
+        params: { name: query }
+      });
+
+      return response.data.map((ex: any, idx: number) => mapApiNinjasData(ex, idx));
     } catch (error) {
       console.error('Error searching exercises:', error);
       return [];
@@ -107,246 +120,246 @@ export const exercisesApi = {
   },
 };
 
-// Demo exercises with REAL ExerciseDB GIF URLs (these work without API key)
+// Demo exercises with real exercise data from API Ninjas format
 const getDemoExercises = () => [
   {
-    id: '0001',
-    name: '3/4 Sit-Up',
-    gifUrl: 'https://picsum.photos/seed/situp/400/400',
-    target: 'abs',
-    bodyPart: 'waist',
-    equipment: 'body weight',
-    description: 'A great exercise targeting abs. This exercise works your waist using body weight.',
-    difficulty: 'beginner',
-    instructions: 'Lie on your back with knees bent. Curl up 3/4 of the way. Lower back down with control.',
+    id: 'ex_0_bench_press',
+    name: 'Bench Press',
+    gifUrl: generateImageUrl('Bench Press', 'strength'),
+    target: 'chest',
+    bodyPart: 'strength',
+    equipment: 'barbell',
+    description: 'Bench Press is a intermediate level exercise that targets your chest. This exercise is great for building strength and improving your fitness.',
+    difficulty: 'intermediate',
+    instructions: 'Lie flat on a bench with your feet on the floor. Grip the barbell with hands slightly wider than shoulder width. Lower the bar to your chest, then press it back up to the starting position.',
     rating: 4.5,
   },
   {
-    id: '0002',
-    name: 'Air Bike',
-    gifUrl: 'https://picsum.photos/seed/airbike/400/400',
-    target: 'abs',
-    bodyPart: 'waist',
-    equipment: 'body weight',
-    description: 'A great exercise targeting abs. This exercise works your waist using body weight.',
+    id: 'ex_1_squat',
+    name: 'Squat',
+    gifUrl: generateImageUrl('Squat', 'strength'),
+    target: 'quadriceps',
+    bodyPart: 'strength',
+    equipment: 'barbell',
+    description: 'Squat is a intermediate level exercise that targets your quadriceps. This exercise is great for building strength and improving your fitness.',
     difficulty: 'intermediate',
-    instructions: 'Lie on back, alternate bringing opposite elbow to opposite knee in cycling motion.',
-    rating: 4.6,
+    instructions: 'Stand with feet shoulder-width apart. Lower your body by bending your knees and hips, keeping your back straight. Push through your heels to return to starting position.',
+    rating: 4.5,
   },
   {
-    id: '0003',
-    name: 'Alternate Heel Touchers',
-    gifUrl: 'https://picsum.photos/seed/heel/400/400',
-    target: 'abs',
-    bodyPart: 'waist',
-    equipment: 'body weight',
-    description: 'A great exercise targeting abs. This exercise works your waist using body weight.',
-    difficulty: 'beginner',
-    instructions: 'Lie on back with knees bent. Crunch and reach alternately to touch each heel.',
-    rating: 4.3,
-  },
-  {
-    id: '0004',
-    name: 'Archer Pull Up',
-    gifUrl: 'https://picsum.photos/seed/pullup/400/400',
-    target: 'lats',
-    bodyPart: 'back',
-    equipment: 'body weight',
-    description: 'A great exercise targeting lats. This exercise works your back using body weight.',
-    difficulty: 'advanced',
-    instructions: 'Pull up while extending one arm out to the side. Alternate sides.',
+    id: 'ex_2_deadlift',
+    name: 'Deadlift',
+    gifUrl: generateImageUrl('Deadlift', 'strength'),
+    target: 'lower_back',
+    bodyPart: 'strength',
+    equipment: 'barbell',
+    description: 'Deadlift is a expert level exercise that targets your lower_back. This exercise is great for building strength and improving your fitness.',
+    difficulty: 'expert',
+    instructions: 'Stand with feet hip-width apart, barbell over your feet. Bend at hips and knees, grip the bar. Lift by extending hips and knees, keeping the bar close to your body.',
     rating: 4.8,
   },
   {
-    id: '0005',
-    name: 'Assisted Pull-Up',
-    gifUrl: 'https://picsum.photos/seed/assisted/400/400',
+    id: 'ex_3_pull_up',
+    name: 'Pull-up',
+    gifUrl: generateImageUrl('Pull-up', 'strength'),
     target: 'lats',
-    bodyPart: 'back',
-    equipment: 'leverage machine',
-    description: 'A great exercise targeting lats. This exercise works your back using leverage machine.',
-    difficulty: 'beginner',
-    instructions: 'Use assistance machine to help pull yourself up until chin is over bar.',
-    rating: 4.4,
-  },
-  {
-    id: '0006',
-    name: 'Band Pull Apart',
-    gifUrl: 'https://picsum.photos/seed/band/400/400',
-    target: 'shoulders',
-    bodyPart: 'shoulders',
-    equipment: 'band',
-    description: 'A great exercise targeting shoulders. This exercise works your shoulders using band.',
-    difficulty: 'beginner',
-    instructions: 'Hold band at chest height. Pull apart until arms are extended to sides.',
+    bodyPart: 'strength',
+    equipment: 'body_only',
+    description: 'Pull-up is a intermediate level exercise that targets your lats. This exercise is great for building strength and improving your fitness.',
+    difficulty: 'intermediate',
+    instructions: 'Hang from a pull-up bar with arms fully extended. Pull yourself up until your chin is above the bar. Lower yourself back down with control.',
     rating: 4.5,
   },
   {
-    id: '0007',
-    name: 'Barbell Bench Press',
-    gifUrl: 'https://picsum.photos/seed/bench/400/400',
-    target: 'pectorals',
-    bodyPart: 'chest',
-    equipment: 'barbell',
-    description: 'A great exercise targeting pectorals. This exercise works your chest using barbell.',
-    difficulty: 'intermediate',
-    instructions: 'Lie on bench. Lower bar to chest. Press up to full extension.',
-    rating: 4.9,
-  },
-  {
-    id: '0008',
-    name: 'Barbell Squat',
-    gifUrl: 'https://picsum.photos/seed/squat/400/400',
-    target: 'glutes',
-    bodyPart: 'upper legs',
-    equipment: 'barbell',
-    description: 'A great exercise targeting glutes. This exercise works your upper legs using barbell.',
-    difficulty: 'intermediate',
-    instructions: 'Bar on back. Squat down until thighs parallel. Stand back up.',
-    rating: 4.8,
-  },
-  {
-    id: '0009',
-    name: 'Barbell Deadlift',
-    gifUrl: 'https://picsum.photos/seed/deadlift/400/400',
-    target: 'glutes',
-    bodyPart: 'upper legs',
-    equipment: 'barbell',
-    description: 'A great exercise targeting glutes. This exercise works your upper legs using barbell.',
-    difficulty: 'intermediate',
-    instructions: 'Bend at hips and knees. Grip bar. Lift by extending hips and knees.',
-    rating: 4.9,
-  },
-  {
-    id: '0010',
-    name: 'Barbell Curl',
-    gifUrl: 'https://picsum.photos/seed/curl/400/400',
-    target: 'biceps',
-    bodyPart: 'upper arms',
-    equipment: 'barbell',
-    description: 'A great exercise targeting biceps. This exercise works your upper arms using barbell.',
+    id: 'ex_4_push_up',
+    name: 'Push-up',
+    gifUrl: generateImageUrl('Push-up', 'strength'),
+    target: 'chest',
+    bodyPart: 'strength',
+    equipment: 'body_only',
+    description: 'Push-up is a beginner level exercise that targets your chest. This exercise is great for building strength and improving your fitness.',
     difficulty: 'beginner',
-    instructions: 'Hold bar with underhand grip. Curl up to shoulders. Lower with control.',
-    rating: 4.6,
-  },
-  {
-    id: '0011',
-    name: 'Dumbbell Shoulder Press',
-    gifUrl: 'https://picsum.photos/seed/shoulder/400/400',
-    target: 'delts',
-    bodyPart: 'shoulders',
-    equipment: 'dumbbell',
-    description: 'A great exercise targeting delts. This exercise works your shoulders using dumbbell.',
-    difficulty: 'beginner',
-    instructions: 'Press dumbbells overhead from shoulder height. Lower back down.',
-    rating: 4.7,
-  },
-  {
-    id: '0012',
-    name: 'Burpee',
-    gifUrl: 'https://picsum.photos/seed/burpee/400/400',
-    target: 'cardiovascular system',
-    bodyPart: 'cardio',
-    equipment: 'body weight',
-    description: 'A great exercise targeting cardiovascular system. This exercise works your cardio using body weight.',
-    difficulty: 'intermediate',
-    instructions: 'Drop to plank, do push-up, jump feet to hands, jump up. Repeat.',
-    rating: 4.7,
-  },
-  {
-    id: '0013',
-    name: 'Dumbbell Lunge',
-    gifUrl: 'https://picsum.photos/seed/lunge/400/400',
-    target: 'glutes',
-    bodyPart: 'upper legs',
-    equipment: 'dumbbell',
-    description: 'A great exercise targeting glutes. This exercise works your upper legs using dumbbell.',
-    difficulty: 'beginner',
-    instructions: 'Step forward and lower until both knees at 90 degrees. Push back up.',
-    rating: 4.5,
-  },
-  {
-    id: '0014',
-    name: 'Mountain Climber',
-    gifUrl: 'https://picsum.photos/seed/mountain/400/400',
-    target: 'abs',
-    bodyPart: 'cardio',
-    equipment: 'body weight',
-    description: 'A great exercise targeting abs. This exercise works your cardio using body weight.',
-    difficulty: 'intermediate',
-    instructions: 'In plank position, alternate driving knees toward chest quickly.',
-    rating: 4.6,
-  },
-  {
-    id: '0015',
-    name: 'Jumping Jacks',
-    gifUrl: 'https://picsum.photos/seed/jumping/400/400',
-    target: 'cardiovascular system',
-    bodyPart: 'cardio',
-    equipment: 'body weight',
-    description: 'A great exercise targeting cardiovascular system. This exercise works your cardio using body weight.',
-    difficulty: 'beginner',
-    instructions: 'Jump feet apart while raising arms overhead. Return to start.',
+    instructions: 'Start in a plank position with hands shoulder-width apart. Lower your body until chest nearly touches the floor. Push back up to starting position.',
     rating: 4.2,
   },
   {
-    id: '0016',
+    id: 'ex_5_bicep_curl',
+    name: 'Bicep Curl',
+    gifUrl: generateImageUrl('Bicep Curl', 'strength'),
+    target: 'biceps',
+    bodyPart: 'strength',
+    equipment: 'dumbbell',
+    description: 'Bicep Curl is a beginner level exercise that targets your biceps. This exercise is great for building strength and improving your fitness.',
+    difficulty: 'beginner',
+    instructions: 'Stand with dumbbells at your sides, palms facing forward. Curl the weights up to shoulder level. Lower back down with control.',
+    rating: 4.2,
+  },
+  {
+    id: 'ex_6_shoulder_press',
+    name: 'Shoulder Press',
+    gifUrl: generateImageUrl('Shoulder Press', 'strength'),
+    target: 'shoulders',
+    bodyPart: 'strength',
+    equipment: 'dumbbell',
+    description: 'Shoulder Press is a beginner level exercise that targets your shoulders. This exercise is great for building strength and improving your fitness.',
+    difficulty: 'beginner',
+    instructions: 'Hold dumbbells at shoulder height. Press weights overhead until arms are fully extended. Lower back to shoulder height.',
+    rating: 4.2,
+  },
+  {
+    id: 'ex_7_lunges',
+    name: 'Lunges',
+    gifUrl: generateImageUrl('Lunges', 'strength'),
+    target: 'quadriceps',
+    bodyPart: 'strength',
+    equipment: 'body_only',
+    description: 'Lunges is a beginner level exercise that targets your quadriceps. This exercise is great for building strength and improving your fitness.',
+    difficulty: 'beginner',
+    instructions: 'Step forward with one leg, lowering your hips until both knees are bent at 90 degrees. Push back to starting position and repeat with other leg.',
+    rating: 4.2,
+  },
+  {
+    id: 'ex_8_plank',
     name: 'Plank',
-    gifUrl: 'https://picsum.photos/seed/plank/400/400',
-    target: 'abs',
-    bodyPart: 'waist',
-    equipment: 'body weight',
-    description: 'A great exercise targeting abs. This exercise works your waist using body weight.',
+    gifUrl: generateImageUrl('Plank', 'strength'),
+    target: 'abdominals',
+    bodyPart: 'strength',
+    equipment: 'body_only',
+    description: 'Plank is a beginner level exercise that targets your abdominals. This exercise is great for building strength and improving your fitness.',
     difficulty: 'beginner',
-    instructions: 'Hold body in straight line on forearms and toes. Maintain position.',
+    instructions: 'Get into a push-up position but rest on your forearms. Keep your body in a straight line from head to heels. Hold this position.',
+    rating: 4.2,
+  },
+  {
+    id: 'ex_9_mountain_climbers',
+    name: 'Mountain Climbers',
+    gifUrl: generateImageUrl('Mountain Climbers', 'cardio'),
+    target: 'abdominals',
+    bodyPart: 'cardio',
+    equipment: 'body_only',
+    description: 'Mountain Climbers is a intermediate level exercise that targets your abdominals. This exercise is great for building strength and improving your fitness.',
+    difficulty: 'intermediate',
+    instructions: 'Start in a plank position. Alternate bringing your knees to your chest in a running motion while keeping your core engaged.',
     rating: 4.5,
   },
   {
-    id: '0017',
-    name: 'Push-Up',
-    gifUrl: 'https://picsum.photos/seed/pushup/400/400',
-    target: 'pectorals',
-    bodyPart: 'chest',
-    equipment: 'body weight',
-    description: 'A great exercise targeting pectorals. This exercise works your chest using body weight.',
-    difficulty: 'beginner',
-    instructions: 'Lower body until chest nearly touches floor. Push back up.',
-    rating: 4.6,
-  },
-  {
-    id: '0018',
-    name: 'Leg Raises',
-    gifUrl: 'https://picsum.photos/seed/legraise/400/400',
-    target: 'abs',
-    bodyPart: 'waist',
-    equipment: 'body weight',
-    description: 'A great exercise targeting abs. This exercise works your waist using body weight.',
+    id: 'ex_10_burpees',
+    name: 'Burpees',
+    gifUrl: generateImageUrl('Burpees', 'cardio'),
+    target: 'abdominals',
+    bodyPart: 'cardio',
+    equipment: 'body_only',
+    description: 'Burpees is a intermediate level exercise that targets your abdominals. This exercise is great for building strength and improving your fitness.',
     difficulty: 'intermediate',
-    instructions: 'Lie on back. Raise legs until vertical. Lower with control.',
-    rating: 4.7,
+    instructions: 'Start standing. Drop to a plank, do a push-up, jump feet to hands, then jump up with arms overhead. Repeat continuously.',
+    rating: 4.5,
   },
   {
-    id: '0019',
-    name: 'Dips',
-    gifUrl: 'https://picsum.photos/seed/dips/400/400',
+    id: 'ex_11_jumping_jacks',
+    name: 'Jumping Jacks',
+    gifUrl: generateImageUrl('Jumping Jacks', 'cardio'),
+    target: 'abdominals',
+    bodyPart: 'cardio',
+    equipment: 'body_only',
+    description: 'Jumping Jacks is a beginner level exercise that targets your abdominals. This exercise is great for building strength and improving your fitness.',
+    difficulty: 'beginner',
+    instructions: 'Start with feet together and hands at sides. Jump feet apart while raising arms overhead. Jump back to starting position.',
+    rating: 4.2,
+  },
+  {
+    id: 'ex_12_tricep_dips',
+    name: 'Tricep Dips',
+    gifUrl: generateImageUrl('Tricep Dips', 'strength'),
     target: 'triceps',
-    bodyPart: 'upper arms',
-    equipment: 'body weight',
-    description: 'A great exercise targeting triceps. This exercise works your upper arms using body weight.',
+    bodyPart: 'strength',
+    equipment: 'body_only',
+    description: 'Tricep Dips is a intermediate level exercise that targets your triceps. This exercise is great for building strength and improving your fitness.',
     difficulty: 'intermediate',
-    instructions: 'Lower body by bending elbows. Push back up to start position.',
-    rating: 4.6,
+    instructions: 'Position hands on a bench behind you. Lower your body by bending elbows to 90 degrees. Push back up to starting position.',
+    rating: 4.5,
   },
   {
-    id: '0020',
-    name: 'Russian Twist',
-    gifUrl: 'https://picsum.photos/seed/russian/400/400',
-    target: 'abs',
-    bodyPart: 'waist',
-    equipment: 'body weight',
-    description: 'A great exercise targeting abs. This exercise works your waist using body weight.',
+    id: 'ex_13_leg_raises',
+    name: 'Leg Raises',
+    gifUrl: generateImageUrl('Leg Raises', 'strength'),
+    target: 'abdominals',
+    bodyPart: 'strength',
+    equipment: 'body_only',
+    description: 'Leg Raises is a intermediate level exercise that targets your abdominals. This exercise is great for building strength and improving your fitness.',
     difficulty: 'intermediate',
-    instructions: 'Sit with knees bent, lean back. Rotate torso side to side.',
+    instructions: 'Lie on your back with legs straight. Raise legs to vertical position keeping them straight. Lower back down without touching the floor.',
     rating: 4.5,
+  },
+  {
+    id: 'ex_14_crunches',
+    name: 'Crunches',
+    gifUrl: generateImageUrl('Crunches', 'strength'),
+    target: 'abdominals',
+    bodyPart: 'strength',
+    equipment: 'body_only',
+    description: 'Crunches is a beginner level exercise that targets your abdominals. This exercise is great for building strength and improving your fitness.',
+    difficulty: 'beginner',
+    instructions: 'Lie on your back with knees bent. Place hands behind head. Curl upper body toward knees. Lower back down with control.',
+    rating: 4.2,
+  },
+  {
+    id: 'ex_15_russian_twists',
+    name: 'Russian Twists',
+    gifUrl: generateImageUrl('Russian Twists', 'strength'),
+    target: 'abdominals',
+    bodyPart: 'strength',
+    equipment: 'body_only',
+    description: 'Russian Twists is a intermediate level exercise that targets your abdominals. This exercise is great for building strength and improving your fitness.',
+    difficulty: 'intermediate',
+    instructions: 'Sit with knees bent and feet off the ground. Lean back slightly. Rotate your torso from side to side, touching the ground beside you.',
+    rating: 4.5,
+  },
+  {
+    id: 'ex_16_side_plank',
+    name: 'Side Plank',
+    gifUrl: generateImageUrl('Side Plank', 'strength'),
+    target: 'abdominals',
+    bodyPart: 'strength',
+    equipment: 'body_only',
+    description: 'Side Plank is a intermediate level exercise that targets your abdominals. This exercise is great for building strength and improving your fitness.',
+    difficulty: 'intermediate',
+    instructions: 'Lie on your side and prop yourself up on one forearm. Keep body in a straight line. Hold this position, then switch sides.',
+    rating: 4.5,
+  },
+  {
+    id: 'ex_17_wall_sit',
+    name: 'Wall Sit',
+    gifUrl: generateImageUrl('Wall Sit', 'strength'),
+    target: 'quadriceps',
+    bodyPart: 'strength',
+    equipment: 'body_only',
+    description: 'Wall Sit is a beginner level exercise that targets your quadriceps. This exercise is great for building strength and improving your fitness.',
+    difficulty: 'beginner',
+    instructions: 'Lean against a wall and slide down until thighs are parallel to ground. Keep back flat against wall. Hold this position.',
+    rating: 4.2,
+  },
+  {
+    id: 'ex_18_calf_raises',
+    name: 'Calf Raises',
+    gifUrl: generateImageUrl('Calf Raises', 'strength'),
+    target: 'calves',
+    bodyPart: 'strength',
+    equipment: 'body_only',
+    description: 'Calf Raises is a beginner level exercise that targets your calves. This exercise is great for building strength and improving your fitness.',
+    difficulty: 'beginner',
+    instructions: 'Stand with feet hip-width apart. Rise up onto your toes as high as possible. Lower back down with control. Repeat.',
+    rating: 4.2,
+  },
+  {
+    id: 'ex_19_high_knees',
+    name: 'High Knees',
+    gifUrl: generateImageUrl('High Knees', 'cardio'),
+    target: 'quadriceps',
+    bodyPart: 'cardio',
+    equipment: 'body_only',
+    description: 'High Knees is a beginner level exercise that targets your quadriceps. This exercise is great for building strength and improving your fitness.',
+    difficulty: 'beginner',
+    instructions: 'Run in place while lifting your knees as high as possible. Pump your arms and maintain a quick pace.',
+    rating: 4.2,
   },
 ];
